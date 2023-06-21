@@ -9,6 +9,7 @@ use ReflectionAttribute;
 use ReflectionClass;
 use Spatie\RouteAttributes\Attributes\Defaults;
 use Spatie\RouteAttributes\Attributes\Fallback;
+use Spatie\RouteAttributes\Attributes\Macro;
 use Spatie\RouteAttributes\Attributes\Route;
 use Spatie\RouteAttributes\Attributes\RouteAttribute;
 use Spatie\RouteAttributes\Attributes\ScopeBindings;
@@ -138,7 +139,7 @@ class RouteRegistrar
     protected function registerRoutes(ReflectionClass $class, ClassRouteAttributes $classRouteAttributes): void
     {
         foreach ($class->getMethods() as $method) {
-            list($attributes, $wheresAttributes, $defaultAttributes, $fallbackAttributes, $scopeBindingsAttribute) = $this->getAttributesForTheMethod($method);
+            list($attributes, $wheresAttributes, $defaultAttributes, $fallbackAttributes, $scopeBindingsAttribute, $macroAttributes) = $this->getAttributesForTheMethod($method);
 
 
             foreach ($attributes as $attribute) {
@@ -169,6 +170,9 @@ class RouteRegistrar
 
 
                 $this->addMiddlewareToRoute($classRouteAttributes, $attributeClass, $route);
+
+
+                $this->executeMacrosOnRoute($classRouteAttributes, $attributeClass, $macroAttributes, $route);
 
 
                 if (count($fallbackAttributes) > 0) {
@@ -208,8 +212,9 @@ class RouteRegistrar
         $defaultAttributes = $method->getAttributes(Defaults::class, ReflectionAttribute::IS_INSTANCEOF);
         $fallbackAttributes = $method->getAttributes(Fallback::class, ReflectionAttribute::IS_INSTANCEOF);
         $scopeBindingsAttribute = $method->getAttributes(ScopeBindings::class, ReflectionAttribute::IS_INSTANCEOF)[0] ?? null;
+        $macroAttributes = $method->getAttributes(Macro::class, ReflectionAttribute::IS_INSTANCEOF);
 
-        return [$attributes, $wheresAttributes, $defaultAttributes, $fallbackAttributes, $scopeBindingsAttribute];
+        return [$attributes, $wheresAttributes, $defaultAttributes, $fallbackAttributes, $scopeBindingsAttribute, $macroAttributes];
     }
 
     /**
@@ -306,5 +311,38 @@ class RouteRegistrar
 
             $route->middleware([...$this->middleware, ...$classRouteAttributes->middleware()]);
         };
+    }
+
+    /**
+     * @param ClassRouteAttributes $classRouteAttributes
+     * @param Route $attributeClass
+     * @param \Illuminate\Routing\Route $route
+     * 
+     * @return void
+     */
+    public function executeMacrosOnRoute(
+        ClassRouteAttributes $classRouteAttributes,
+        Route $attributeClass,
+        $macroAttributes,
+        \Illuminate\Routing\Route $route
+    ): void
+    {
+        $classMacros = $classRouteAttributes->macros();
+        $methodsMacros = $attributeClass->macros;
+        
+        $methodsMacrosAttributes = [];
+
+        foreach ($macroAttributes as $macroAttribute) {
+            $methodsMacrosAttributes[] = $macroAttribute->newInstance();
+        }
+
+        $allMacros = [...$classMacros, ...$methodsMacrosAttributes, ...$methodsMacros];
+
+        foreach ($allMacros as $macroAttribute) {
+            $macroName = $macroAttribute->macro;
+            $macroParams = $macroAttribute->macroParams;
+
+            $route->$macroName(...$macroParams);
+        }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Spatie\RouteAttributes\Tests;
 
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\RouteCollection;
 use Illuminate\Support\Arr;

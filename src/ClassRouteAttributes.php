@@ -7,6 +7,7 @@ use Spatie\RouteAttributes\Attributes\Defaults;
 use Spatie\RouteAttributes\Attributes\Domain;
 use Spatie\RouteAttributes\Attributes\DomainFromConfig;
 use Spatie\RouteAttributes\Attributes\Group;
+use Spatie\RouteAttributes\Attributes\Macro;
 use Spatie\RouteAttributes\Attributes\Middleware;
 use Spatie\RouteAttributes\Attributes\Prefix;
 use Spatie\RouteAttributes\Attributes\Resource;
@@ -234,6 +235,25 @@ class ClassRouteAttributes
         }
 
         return $defaults;
+    }
+
+    /**
+     * @psalm-suppress NoInterfaceProperties
+     * 
+     * @return Macro[]
+     */
+    public function macros(): array
+    {
+        $macros = [];
+        /** @var ReflectionClass[] $attributes */
+        $attributes = $this->class->getAttributes(Macro::class, \ReflectionAttribute::IS_INSTANCEOF);
+
+        foreach ($attributes as $attribute) {
+            $attributeClass = $attribute->newInstance();
+            $macros[] = $attributeClass;
+        }
+
+        return $macros;
     }
 
     protected function getAttribute(string $attributeClass): ?RouteAttribute
