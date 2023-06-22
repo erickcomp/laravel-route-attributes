@@ -31,7 +31,7 @@ class MacroAttributeTest extends TestCase
             __FUNCTION__,
             MacroTestController1::ROUTE_TESTE_ROUTE_NAME,
             'testMacro1',
-            MacroTestController1::ROUTE_TESTE_MACRO_1_PARAM_1,
+            MacroTestController1::class . '|testMacro1',
         );
     }
 
@@ -42,16 +42,16 @@ class MacroAttributeTest extends TestCase
 
         $this->assertRouteExecutedMacro(
             __FUNCTION__,
-            MacroTestController1::ROUTE_TESTE_ROUTE_NAME,
+            MacroTestController2::ROUTE_TESTE_ROUTE_NAME,
             'testMacro1',
-            MacroTestController1::ROUTE_TESTE_MACRO_1_PARAM_1,
+            MacroTestController2::class . '|testMacro1',
         );
 
         $this->assertRouteExecutedMacro(
             __FUNCTION__,
             MacroTestController2::ROUTE_TESTE_ROUTE_NAME,
             'testMacro2',
-            MacroTestController2::ROUTE_TESTE_MACRO_2_PARAM_1,
+            MacroTestController2::class . '|testMacro2',
         );
     }
 
@@ -64,26 +64,56 @@ class MacroAttributeTest extends TestCase
             __FUNCTION__,
             MacroTestController3::ROUTE_TESTE_ROUTE_NAME,
             'testMacro1',
-            MacroTestController3::ROUTE_TESTE_MACRO_1_PARAM_1,
+            MacroTestController3::class . '|testMacro1',
         );
     }
 
+    /** @test */
     public function it_can_add_multiple_macros_to_a_method()
     {
-        
+        $this->routeRegistrar->registerClass(MacroTestController4::class);
+
+        $this->assertRouteExecutedMacro(
+            __FUNCTION__,
+            MacroTestController4::ROUTE_TESTE_ROUTE_NAME,
+            'testMacro1',
+            MacroTestController4::class . '|testMacro1',
+        );
+
+        $this->assertRouteExecutedMacro(
+            __FUNCTION__,
+            MacroTestController4::ROUTE_TESTE_ROUTE_NAME,
+            'testMacro2',
+            MacroTestController4::class . '|testMacro2',
+        );
     }
 
-    public function it_uses_macros_registered_in_class_and_in_method()
+    /** @test */
+    public function it_can_add_a_single_macro_to_a_class_and_a_single_macro_to_a_method()
     {
+        $this->routeRegistrar->registerClass(MacroTestController5::class);
 
+        $this->assertRouteExecutedMacro(
+            __FUNCTION__,
+            MacroTestController5::ROUTE_TESTE_ROUTE_NAME,
+            'testMacro1',
+            MacroTestController5::class . '|testMacro1',
+        );
+
+        $this->assertRouteExecutedMacro(
+            __FUNCTION__,
+            MacroTestController5::ROUTE_TESTE_ROUTE_NAME,
+            'testMacro2',
+            MacroTestController5::class . '|testMacro2',
+        );
     }
 
-    public function it_executed_all_macros_registered_into_route()
-    {
-        $this->routeRegistrar->registerClass(MacroTestController1::class);
-        $this->assertRouteExecutedMacro('teste-route-2', 'testMacro2', );
+    // public function it_executed_all_macros_registered_into_route()
+    // {
+    //     $this->routeRegistrar->registerClass(MacroTestController1::class);
+    //     $this->assertRouteExecutedMacro('teste-route-2', 'testMacro2', );
 
-    }
+    // }
 
     /** @test */
     // public function it_can_add_a_route_name_to_a_method()

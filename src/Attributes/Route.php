@@ -21,7 +21,6 @@ class Route implements RouteAttribute
         public string $uri,
         public ?string $name = null,
         array | string $middleware = [],
-        array | Macro $macros = [],
     ) {
         $this->methods = array_map(
             static fn (string $verb) => in_array(
@@ -33,11 +32,5 @@ class Route implements RouteAttribute
             Arr::wrap($methods)
         );
         $this->middleware = Arr::wrap($middleware);
-        $this->setMacros(...$macros);
-    }
-
-    public function setMacros(Macro ...$macros)
-    {
-        $this->macros = $macros;
     }
 }

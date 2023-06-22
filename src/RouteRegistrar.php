@@ -328,15 +328,13 @@ class RouteRegistrar
     ): void
     {
         $classMacros = $classRouteAttributes->macros();
-        $methodsMacros = $attributeClass->macros;
-        
-        $methodsMacrosAttributes = [];
 
+        $methodsMacros = [];
         foreach ($macroAttributes as $macroAttribute) {
-            $methodsMacrosAttributes[] = $macroAttribute->newInstance();
+            $methodsMacros[] = $macroAttribute->newInstance();
         }
 
-        $allMacros = [...$classMacros, ...$methodsMacrosAttributes, ...$methodsMacros];
+        $allMacros = [...$classMacros, ...$methodsMacros];
 
         foreach ($allMacros as $macroAttribute) {
             $macroName = $macroAttribute->macro;
