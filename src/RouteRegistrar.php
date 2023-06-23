@@ -336,9 +336,10 @@ class RouteRegistrar
 
         $allMacros = [...$classMacros, ...$methodsMacros];
 
+        /** @var Macro $macroAttribute */
         foreach ($allMacros as $macroAttribute) {
-            $macroName = $macroAttribute->macro;
-            $macroParams = $macroAttribute->macroParams;
+            $macroName = $macroAttribute->getMacro();
+            $macroParams = $macroAttribute->getMacroParams();
 
             $route->$macroName(...$macroParams);
         }
